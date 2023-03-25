@@ -57,7 +57,8 @@ def send_message(bot, message):
         logger.info("Попытка отправить сообщение в чат.")
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logger.debug("Сообщение доставлено успешно!.")
-    except Exception:
+
+    except telegram.TelegramError:
         logger.error("Не удалось отправить сообщение в Telegram.")
         raise SendMessageError("Не удалось отправить сообщение в Telegram.")
 
@@ -67,22 +68,19 @@ def get_api_answer(timestamp):
     headers = {"Authorization": f"OAuth {PRACTICUM_TOKEN}"}
     params = {"from_date": timestamp}
     try:
-        homework_status = requests.get(
-            ENDPOINT, headers=headers, params=params
-        )
+        logger.info(f"Отправка запроса к  Практикуму с параметрами: {params}.")
+        homework_status = requests.get(ENDPOINT, headers=headers,
+                                       params=params)
         if homework_status.status_code == HTTPStatus.NOT_FOUND:
             raise EndpointUnavailableError(
                 "Эндпоинт Практикум недоступен. Код ошибки: 404."
             )
-
         if homework_status.status_code != HTTPStatus.OK:
             raise ResponseError(
                 f"При запросе к сервису Практикуму возникла ошибка."
                 f"Код ошибки: {homework_status.status_code}."
             )
-
         return homework_status.json()
-
     except requests.exceptions.RequestException as error:
         raise RequestError(f"Сбой при запросе к сервису Практикума: {error}.")
 
@@ -111,9 +109,10 @@ def check_response(response):
         )
 
     if not homeworks:
-        raise IndexError("Значение по ключу `homeworks` - пустой список.")
-
-    return homeworks
+        print("Значение по ключу `homeworks` - пустой список.")
+        return []
+    else:
+        return homeworks
 
 
 def parse_status(homework):
