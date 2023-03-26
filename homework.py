@@ -96,12 +96,14 @@ def check_response(response):
         )
 
     if not response.get("current_date"):
+
         raise KeyError("В полученном ответе отсутствует ключ `current_date`.")
 
     if not response.get("homeworks"):
         raise KeyError("В полученном ответе отсутствует ключ `homeworks`.")
 
     homeworks = response.get("homeworks")
+
     if not isinstance(homeworks, list):
         raise TypeError(
             f"Значение по ключу `homeworks` не является списком."
@@ -109,10 +111,10 @@ def check_response(response):
         )
 
     if not homeworks:
-        print("Значение по ключу `homeworks` - пустой список.")
-        return []
-    else:
-        return homeworks
+
+        logger.info("Значение по ключу `homeworks` - пустой список.")
+
+    return homeworks
 
 
 def parse_status(homework):
